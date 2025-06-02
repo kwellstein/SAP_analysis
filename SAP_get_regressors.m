@@ -1,7 +1,7 @@
 function reg = SAP_get_regressors(PID, paths, options)
 
 if nargin==0
-[paths,options] = getDataSpecs(PID);
+[paths,options] = getDataSpecs();
 
 for n = 1:options.dataSet.nParticipants
     for t = 1:options.dataSet.nTasks
@@ -15,7 +15,7 @@ end
 
 elseif nargin < 2
     [paths,options] = getDataSpecs(PID);
-    
+
     for t = 1:options.dataSet.nTasks
         est = load(paths.participant.task(t,1).modelFile);
         load(paths.participant.task(t,1).dataFile)

@@ -10,12 +10,17 @@ for PID = 1: dataSet.nParticipans
 
 % LOAD MODELING Data
 
-% PREPROCESSING
 
+%%%  ============== PREPROCESSING  ==============  %%% 
+
+% get distortion covariates for GLM
+cov = getDistCovariates(PID,paths,options);
 
 % get regressors
 reg = SAP_get_regressors(options,paths,PID);
-% FIRST-LEVEL GLM
+
+%%%  ============== FIRST-LEVEL GLM  ==============  %%% 
+SAP_1stlevel_glm(PID,options,cov,reg);
 
 
 end
