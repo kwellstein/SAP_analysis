@@ -1,0 +1,45 @@
+function getPhysioPeaks
+
+[paths,options] = getDataSpecs();
+
+% initialize
+ppu_perTrial = zeros(10000,120);
+% ppuPeaksTable = table('VariableNames',{});
+
+for t = 1:options.dataSet.nTasks
+    currTask = options.dataSet.tasks{t};
+for n = 1:options.dataSet.nParticipants 
+    curPID =  options.dataSet.PIDs(n);
+    load(paths.participant(n).task(t,1).dataFile);
+    load(paths.participant(n).task(t,1).optsFile);
+    % taskTimes(:,1) = dataFile.events.outcome_startTime;
+    % taskTimes(:,2) = dataFile.events.iti_startTime;
+    % taskTimes(:,3) = dataFile.events.stimulus_startTime;
+
+    load([paths.participant(n).periphDir,num2str(curPID),currTask,'_ppu.mat']);
+    ppuTime = string(ppu_data.time);
+        for iTime = 1:numel(dataFile.events.outcome_startTime)
+            ids = find(strcmp(dataFile.events.outcome_startTime(iTime),ppuTime));
+            ppu_outcomeIds(iTime) = ids(1);
+            ids = find(strcmp(dataFile.events.iti_startTime(iTime),ppuTime));
+            ppu_itiIds(iTime) = ids(1);
+
+            if iTime < numel(dataFile.events.outcome_startTime)
+                ids = find(strcmp(dataFile.events.stimulus_startTime(iTime+1),ppuTime));
+                ppu_newStimIds(iTime) = ids(1);
+            else
+                ppu_newStimIds(iTime) = ppu_newStimIds(iTime-1)+1000;
+            end
+        end
+
+        for iTrial = 1:numel(dataFile.events.outcome_startTime)
+                smoothedData = smooth(ppu_data.data(ppu_outcomeIds(iTrial):ppu_newStimIds(iTrial)),'sgolay');
+                ppu_perTrial(:,iTrial) = [smoothedData;zeros(10000-numel(smoothedData),1)];
+                maxPPUs(:,iTrial) = max(ppu_perTrial(:,iTrial));
+                [peaks,locs,w,p] = findpeaks(ppu_perTrial(:,iTrial),'MinPeakDistance',40);
+        end
+end
+end
+
+
+end
