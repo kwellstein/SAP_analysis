@@ -3,9 +3,11 @@ function [  ] = SAP_1stlevel_glm(PID, options)
 %% -------------------------------------------------------
 
 % Get options if not specified
-if nargin < 2
-[paths,options] = getDataSpecs(PID);
-%     options = SAP_analysis_options();
+if nargin==0
+    [paths,options] = getDataSpecs();
+elseif nargin < 2
+    [paths,options] = getDataSpecs(PID);
+    %     options = SAP_analysis_options();
 end
 
 
@@ -15,8 +17,28 @@ end
 % end
 
 % Return regressors for the design matrix
-reg = SAP_get_regressors(PID, paths, options);
+if nargin==0
+    reg = SAP_get_regressors();
+else
+    reg = SAP_get_regressors(PID, paths, options);
+end
 
+R(:,1) = (reg(1,1).model(1,1).pe)';
+R(121:240,1) = (reg.model(1,2).pe)';
+SAPtime = reg(1,1).timings(1,1).outcomeTime;
+SAPtime = SAPtime';
+idx = reg.behav(1,1).incongr;
+idx = logical(idx)'
+idx = logical(reg.behav(1,1).incongr);
+incongrSAP = SAPtime(idx);
+
+SAPCtime = reg(1,1).timings(1,2).outcomeTime
+SAPCtime = SAPCtime';
+idx = reg.behav(1,2).incongr;
+idx = logical(idx)'
+idx = logical(reg.behav(1,2).incongr);
+incongrSAPC = SAPCtime(idx);
+r = readmatrix('/Volumes/Samsung_T5/SNG/projects/SAPS/data/SAPS_1001/neuro/SAP/rp_fBL-0020-00001-000001-01.txt')
 % Set up and compute the GLM
 spm('defaults', 'fmri');
 

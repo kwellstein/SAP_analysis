@@ -51,11 +51,13 @@ if ~nargin==0
 
         for t = 1:options.dataSet.nTasks
             task = options.dataSet.tasks{t};
-            paths.participant(i).task(t,1).optsFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
-            paths.participant(i).task(t,1).dataFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+            paths.participant.task(t,1).optsFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
+            paths.participant.task(t,1).dataFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+            tempDir = dir([paths.participant.neuroDir,'NEURO_SYSTEMS_NEUROSCIENCE_*',filesep,'CMRR_MBEP2D_BOLD_SAPS_',task,'_PA_PHYSIOLOG_*',filesep,'*.IMA']);
+            paths.participant.task(t,1).neuroPhysFile = [tempDir.folder,filesep,tempDir.name];
             for m = 1:numel(options.model.space)
-                paths.participant(i).task(t,m).modelFile    = [paths.participant.modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'_est.mat'];
-                paths.participant(i).task(t,m).modelFigFile = [paths.participant.modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'.fig'];
+                paths.participant.task(t,m).modelFile    = [paths.participant.modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'_est.mat'];
+                paths.participant.task(t,m).modelFigFile = [paths.participant.modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'.fig'];
             end
         end
 else
@@ -78,6 +80,17 @@ else
             task = options.dataSet.tasks{t};
             paths.participant(i).task(t,1).optsFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
             paths.participant(i).task(t,1).dataFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+            tempDir = dir([paths.participant(i).neuroDir,'NEURO_SYSTEMS_NEUROSCIENCE_*',filesep,'CMRR_MBEP2D_BOLD_SAPS_',task,'_PA_PHYSIOLOG_*',filesep,'*.IMA']);
+            if size(tempDir,1)==1
+            paths.participant(i).task(t,1).neuroPhysFile = [tempDir.folder,filesep,tempDir.name];
+            else
+                for j = 1:size(tempDir,1)
+                    if ~contains(tempDir(j).name,'._SAPS_')
+                        paths.participant(i).task(t,1).neuroPhysFile = [tempDir(j).folder,filesep,tempDir(j).name];
+                    end
+                end
+            end
+
             for m = 1:numel(options.model.space)
                 paths.participant(i).task(t,m).modelFile    = [paths.participant(i).modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'_est.mat'];
                 paths.participant(i).task(t,m).modelFigFile = [paths.participant(i).modelDir,'SNG_',options.model.space{m},'_',task,'_',options.dataSet.acronym,'_',char(string(PID)),'.fig'];
