@@ -4,16 +4,23 @@ using StatsPlots #For plotting
 
 ### READ DATA ###
 
-#Get path to this file
+#Get paths
 path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-2)])
+dataPath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling";
+savePath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/results";
 
-#Get all the pilot data files (only csv!)
-pilot_data_files = glob("*.csv", joinpath(path_to_this_file, "pilot_data"))
+#Get all the pilot data files by looking for all CSV files in a given folder
+# pilot_data_files = glob("*.csv", joinpath(path_to_this_file, "pilots"))
+# pilot_data_results = joinpath(savePath, "pilots")
+#Get main data files for both SAP and SAPC task by looking for all CSV files in a given folder
+
+main_data_files = glob("*SAP_behav.csv", joinpath(dataPath, "main"))
+main_data_results = joinpath(savePath, "main")
 
 #create empty container for the dataframes
-all_dfs = Vector{DataFrame}(undef, length(pilot_data_files))
+all_dfs = Vector{DataFrame}(undef, 2)#length(main_data_files))
 #Go through each pilot data file
-for (i, filename) in enumerate(pilot_data_files)
+for (i, filename) in enumerate(main_data_files[1:2])
     #Read it in
     single_df = CSV.read(filename, DataFrame, missingstring = "NaN")
     #Add ID column
@@ -72,6 +79,7 @@ posterior_df_std = summarize(posterior_session_params, std)
 #You can give a vector of 
 #Prediction for avatar 1
 trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary1_prediction_mean, :posterior), median)
+#CSV.write((main_data_results,filename,"binary1_prediction_mean"), trajectories_df)
 #Prediction for avatar 2
 trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary2_prediction_mean, :posterior), median)
 #Belief for probability parent, avatar 1
@@ -111,6 +119,5 @@ prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xvol_post
 
 
 
+#Save dataframes
 
-
-#You can use CSV.write(filename, df) to save the dataframes
