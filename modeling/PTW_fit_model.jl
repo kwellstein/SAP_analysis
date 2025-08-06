@@ -18,9 +18,9 @@ main_data_files = glob("*SAP_behav.csv", joinpath(dataPath, "main"))
 main_data_results = joinpath(savePath, "main")
 
 #create empty container for the dataframes
-all_dfs = Vector{DataFrame}(undef, 2)#length(main_data_files))
+all_dfs = Vector{DataFrame}(undef, length(main_data_files))
 #Go through each pilot data file
-for (i, filename) in enumerate(main_data_files[1:2])
+for (i, filename) in enumerate(main_data_files)
     #Read it in
     single_df = CSV.read(filename, DataFrame, missingstring = "NaN")
     #Add ID column
@@ -79,16 +79,39 @@ posterior_df_std = summarize(posterior_session_params, std)
 #You can give a vector of 
 #Prediction for avatar 1
 trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary1_prediction_mean, :posterior), median)
-#CSV.write((main_data_results,filename,"binary1_prediction_mean"), trajectories_df)
+CSV.write(joinpath(main_data_results,"binary_face1_prediction_mean.csv"), trajectories_df)
 #Prediction for avatar 2
 trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary2_prediction_mean, :posterior), median)
+CSV.write(joinpath(main_data_results,"binary_face2_prediction_mean.csv"), trajectories_df)
+
+#Prediction for avatar 3
+trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary3_prediction_mean, :posterior), median)
+CSV.write(joinpath(main_data_results,"binary_face3_prediction_mean.csv"), trajectories_df)
+
 #Belief for probability parent, avatar 1
 trajectories_df = summarize(get_state_trajectories!(full_model, :xprob1_posterior_mean, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face1_posterior_mean.csv"), trajectories_df)
 #Prediction error for probability parent for avatar 1
 trajectories_df = summarize(get_state_trajectories!(full_model, :xprob1_value_prediction_error, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face1_value_prediction_error.csv"), trajectories_df)
+
+#Belief for probability parent, avatar 1
+trajectories_df = summarize(get_state_trajectories!(full_model, :xprob2_posterior_mean, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face2_posterior_mean.csv"), trajectories_df)
+#Prediction error for probability parent for avatar 1
+trajectories_df = summarize(get_state_trajectories!(full_model, :xprob2_value_prediction_error, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face2_value_prediction_error.csv"), trajectories_df)
+
+#Belief for probability parent, avatar 1
+trajectories_df = summarize(get_state_trajectories!(full_model, :xprob3_posterior_mean, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face3_posterior_mean.csv"), trajectories_df)
+#Prediction error for probability parent for avatar 1
+trajectories_df = summarize(get_state_trajectories!(full_model, :xprob3_value_prediction_error, :posterior), median)
+CSV.write(joinpath(main_data_results,"xprob_face3_value_prediction_error.csv"), trajectories_df)
+
 #Belief mean for overall volatility
 trajectories_df = summarize(get_state_trajectories!(full_model, :xvol_posterior_mean, :posterior), median)
-
+CSV.write(joinpath(main_data_results,"xvol_posterior_mean.csv"), trajectories_df)
 
 
 #We can do all the same things with the prior
@@ -108,16 +131,42 @@ prior_df_std = summarize(prior_session_params, std)
 #The symbol decides which state to summarize
 #Prediction for avatar 1
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary1_prediction_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face1_prediction_mean.csv"), prior_trajectories_df)
+
 #Prediction for avatar 2
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary2_prediction_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face2_prediction_mean.csv"), prior_trajectories_df)
+
+#Prediction for avatar 3
+prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary3_prediction_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face3_prediction_mean.csv"), prior_trajectories_df)
+
 #Belief for probability parent, avatar 1
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob1_posterior_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face1_posterior_mean.csv"), prior_trajectories_df)
+
 #Prediction error for probability parent for avatar 1
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob1_value_prediction_error, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face1_value_prediction_error.csv"), prior_trajectories_df)
+
+#Belief for probability parent, avatar 2
+prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob2_posterior_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face2_posterior_mean.csv"), prior_trajectories_df)
+
+#Prediction error for probability parent for avatar 2
+prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob2_value_prediction_error, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face2_value_prediction_error.csv"), prior_trajectories_df)
+
+#Belief for probability parent, avatar 3
+prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob3_posterior_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face3_posterior_mean.csv"), prior_trajectories_df)
+
+#Prediction error for probability parent for avatar 3
+prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xprob3_value_prediction_error, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face3_value_prediction_error.csv"), prior_trajectories_df)
+
 #Belief mean for overall volatility
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xvol_posterior_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_vol_posterior_mean.csv"), prior_trajectories_df)
 
-
-
-#Save dataframes
 
