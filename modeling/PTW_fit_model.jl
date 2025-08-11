@@ -1,6 +1,7 @@
 using ActionModels, HierarchicalGaussianFiltering #For the modeling
 using Glob, CSV, DataFrames #For loading the data
 using StatsPlots #For plotting
+using JLD2 #For saving the results
 
 ### READ DATA ###
 
@@ -65,6 +66,8 @@ posterior_chains = sample_posterior!(
     n_samples = 1000,
     n_chains = 2,
 )
+
+@save joinpath(main_data_results,"full_model.jld2") full_model
 
 #Plot the posterior
 plot(posterior_chains)
