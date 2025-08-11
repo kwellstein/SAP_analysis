@@ -1,6 +1,7 @@
 using ActionModels, HierarchicalGaussianFiltering #For the modeling
 using Glob, CSV, DataFrames #For loading the data
 using StatsPlots #For plotting
+using JLD2 #For saving the results
 
 ### READ DATA ###
 
@@ -66,6 +67,8 @@ posterior_chains = sample_posterior!(
     n_chains = 2,
 )
 
+@save joinpath(main_data_results,"full_model.jld2") full_model
+
 #Plot the posterior
 plot(posterior_chains)
 
@@ -73,6 +76,8 @@ plot(posterior_chains)
 posterior_session_params = get_session_parameters!(full_model, :posterior)
 posterior_df_medians = summarize(posterior_session_params, median)
 posterior_df_std = summarize(posterior_session_params, std)
+CSV.write(joinpath(main_data_results,"posterior_session_params_medians.csv"), posterior_df_medians)
+CSV.write(joinpath(main_data_results,"posterior_session_params_std.csv"), posterior_df_std)
 
 #Get a dataframe with the posterior state estimates and the std of the uncertainty
 #The symbol decides which state to summarize
