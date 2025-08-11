@@ -23,46 +23,37 @@ else
     reg = SAP_get_regressors(PID, paths, options);
 end
 
-R(:,1) = (reg(1,1).model(1,1).pe)';
-R(121:240,1) = (reg.model(1,2).pe)';
-SAPtime = reg(1,1).timings(1,1).outcomeTime;
-SAPtime = SAPtime';
-idx = reg.behav(1,1).incongr;
-idx = logical(idx)'
-idx = logical(reg.behav(1,1).incongr);
-incongrSAP = SAPtime(idx);
 
-SAPCtime = reg(1,1).timings(1,2).outcomeTime
-SAPCtime = SAPCtime';
-idx = reg.behav(1,2).incongr;
-idx = logical(idx)'
-idx = logical(reg.behav(1,2).incongr);
-incongrSAPC = SAPCtime(idx);
-r = readmatrix('/Volumes/Samsung_T5/SNG/projects/SAPS/data/SAPS_1001/neuro/SAP/rp_fBL-0020-00001-000001-01.txt')
 % Set up and compute the GLM
 spm('defaults', 'fmri');
+ for n = 1:options.dataSet.nParticipants
 
+        for t = 1:2%options.dataSet.nTasks
+                if ~isempty(dir(paths.participant(n).task(t).optsFile))
+                opts = load(paths.participant(n).task(t).optsFile);
+                opts.options.task.sequenceIdx==1
 matlabbatch = [];
 
-% Load functional file
-matlabbatch{1}.cfg_basicio.file_dir.dir_ops.cfg_mkdir.parent = {options.path.firstlevel.root};
-matlabbatch{1}.cfg_basicio.file_dir.dir_ops.cfg_mkdir.name = options.analysis;
-matlabbatch{2}.spm.util.exp_frames.files = {options.file.swrafile};
-matlabbatch{2}.spm.util.exp_frames.frames = Inf;
+% Load functional files
+matlabbatch{1}.spm.stats.fmri_spec.dir = {[paths.participant(n).neuroDir,options.dataSet.tasks{1},filesep,
+% matlabbatch{1}.cfg_basicio.file_dir.dir_ops.cfg_mkdir.parent = {options.path.firstlevel.root};
+% matlabbatch{1}.cfg_basicio.file_dir.dir_ops.cfg_mkdir.name = options.analysis;
+% matlabbatch{2}.spm.util.exp_frames.files = {options.file.swrafile};
+% matlabbatch{2}.spm.util.exp_frames.frames = Inf;
 
 %--- Model specification -------------------------------------------------%
-switch options.analysis
-    case 'insula'
-        matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''insula''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
-    case 'midbrain'
-        matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''midbrain''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
-    case {'wholebrain', 'posthoc'}
-        matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''wholebrain''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
-end
-matlabbatch{3}.spm.stats.fmri_spec.timing.units = 'secs';
-matlabbatch{3}.spm.stats.fmri_spec.timing.RT     = 1;
-matlabbatch{3}.spm.stats.fmri_spec.timing.fmri_t = 15;
-matlabbatch{3}.spm.stats.fmri_spec.timing.fmri_t0 = 1;
+% switch options.analysis
+%     case 'insula'
+%         matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''insula''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
+%     case 'midbrain'
+%         matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''midbrain''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
+%     case {'wholebrain', 'posthoc'}
+%         matlabbatch{3}.spm.stats.fmri_spec.dir(1) = cfg_dep('Make Directory: Make Directory ''wholebrain''', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','dir'));
+% end
+matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
+matlabbatch{1}.spm.stats.fmri_spec.timing.RT = 0.8;
+matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 16;
+matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 8;
 matlabbatch{3}.spm.stats.fmri_spec.sess.scans(1) = cfg_dep('Expand image frames: Expanded filename list.', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','files'));
 % Task regressors
 matlabbatch{3}.spm.stats.fmri_spec.sess.cond(1).name = 'cue';

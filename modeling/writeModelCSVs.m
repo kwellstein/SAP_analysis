@@ -2,16 +2,16 @@ function writeModelCSVs(PID, paths, options)
 
 
 if nargin==0
-    [paths,options] = getDataSpecs();
+    [paths,options] = getDataSpecs([],'pilot');
     for n = 1:options.dataSet.nParticipants
         disp(['writing ',num2str(options.dataSet.PIDs(n)),'...']);
         for t = 1:options.dataSet.nTasks
             task = options.dataSet.tasks{t};
             disp(['task ',task,'...']);
             predictField = [task,'Prediction'];
-            if ~ isempty(dir(paths.participant(n).task(t,1).dataFile))
-                load(paths.participant(n).task(t,1).dataFile);
-                opts = load(paths.participant(n).task(t,1).optsFile);
+            if ~isempty(dir(paths.participant(n).task(t,2).dataFile))
+                load(paths.participant(n).task(t,2).dataFile);
+                opts = load(paths.participant(n).task(t,2).optsFile);
                 if size(dataFile.(predictField).response,1)==opts.options.task.nTrials
                     modelInputs = array2table(zeros(opts.options.task.nTrials,3),'VariableNames',{'stimulus','input','response'});
                     modelInputs.stimulus = opts.options.task.inputs(:,1);
