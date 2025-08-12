@@ -141,8 +141,8 @@ prior_df_std = summarize(prior_session_params, std)
 #Get a dataframe with the posterior state estimates and the std of the uncertainty
 #The symbol decides which state to summarize
 #Prediction for avatar 1
-prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary1_prediction_mean, :prior), median)
-CSV.write(joinpath(main_data_results,"prior_face1_prediction_mean.csv"), prior_trajectories_df)
+trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary1_prediction_mean, :prior), median)
+CSV.write(joinpath(main_data_results,"prior_face1_prediction_mean.csv"), trajectories_df)
 
 #Prediction for avatar 2
 prior_trajectories_df = summarize(get_state_trajectories!(full_model, :xbinary2_prediction_mean, :prior), median)
