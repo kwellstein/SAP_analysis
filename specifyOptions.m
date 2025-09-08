@@ -11,7 +11,7 @@ options.paths.DBExport   = [options.paths.data,'REDCapExport',filesep];
 options.paths.questData  = [options.paths.data,'questionnaires',filesep];
 options.paths.figDir     = [options.paths.results,'figures',filesep];
 
-[paths,dataSet] = getDataSpecs();
+[paths,dataSet] = getDataSpecs([],'main');
 options.dataSet = dataSet;
 
 options.task(1).inputs = load('/Users/kwellste/projects/SEPAB/tasks/social_affective_prediction_task/task/+eventCreator/input_sequence.csv');

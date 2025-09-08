@@ -1,6 +1,6 @@
 function getPrescreeningData
 
-options = specifyOptions;
+options = specifyOptions();
 options = getQuestionnaireDetails(options);
 
 %% LOAD REDCap datafile
