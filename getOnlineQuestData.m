@@ -14,7 +14,7 @@ questDimIds  = [1:nQuestDims]';
 
 %% EXTRACT data
 
-% get rid of pilot data
+% get rid of pilot data and excluded data
 PID_rows  = find(~isnan(data.pid));
 for n = 1:numel(PID_rows)
     if data.pid(PID_rows(n))>1099
