@@ -1,7 +1,7 @@
 function convertPhysioFiles(PID, paths, options)
 
 if nargin==0
-    [paths,options] = getDataSpecs();
+    [paths,options] = getDataSpecs([],'main');
     for n = 1:options.dataSet.nParticipants
         for t = 1:options.dataSet.nTasks
             task = options.dataSet.tasks{t};

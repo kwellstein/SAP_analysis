@@ -1,7 +1,7 @@
 function getPhysioPeaks
 
 % get paths, filenames, participant IDs etc.
-[paths,data] = getDataSpecs();
+[paths,data] = getDataSpecs([],'main');
 
 % initialize empty matrix
 ppu_perTrial = zeros(10000,120);
@@ -206,7 +206,7 @@ for t = 1:data.dataSet.nTasks
             else
 
                 if strcmp(currTask,'SAP')
-                    varargout = readCMRRPhysio([paths.participant.neuroDir,)
+                    % varargout = readCMRRPhysio([paths.participant.neuroDir,)
 
                     HR_StimSmiletrials_mean(n,:) = NaN;
                     HR_StimSmiletrials_min(n,:)  = NaN;
