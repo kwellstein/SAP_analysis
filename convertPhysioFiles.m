@@ -6,7 +6,7 @@ if nargin==0
         for t = 1:options.dataSet.nTasks
             task = options.dataSet.tasks{t};
             if  ~isempty(paths.participant(n).task(t,1).neuroPhysFile)
-                physio = readCMRRPhysio(paths.participant(n).task(t,1).neuroPhysFile,1,[paths.participant(n).neuroDir,task,filesep]);
+                physio = readCMRRPhysio(paths.participant(n).task(t,1).neuroPhysFile,1,[paths.participant(n).neuroDir,task,filesep,'physio',filesep]);
             end
         end
     end
@@ -15,7 +15,7 @@ elseif nargin < 2
     task = options.dataSet.tasks{t};
     for t = 1:options.dataSet.nTasks
         if  ~strcmp(paths.participant.task(t,1).neuroPhysFile,filesep)
-            physio = readCMRRPhysio(paths.participant.task(t,1).neuroPhysFile,1,[paths.participant.neuroDir,task,filesep]);
+            physio = readCMRRPhysio(paths.participant.task(t,1).neuroPhysFile,1,[paths.participant.neuroDir,task,filesep,'physio',filesep]);
         end
     end
 

@@ -85,6 +85,7 @@ else
                     task = options.dataSet.tasks{t};
                     paths.participant(i).task(t,1).optsFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
                     paths.participant(i).task(t,1).dataFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+
                     tempDir = dir([paths.participant(i).neuroDir,'NEURO_SYSTEMS_NEUROSCIENCE_*',filesep,'CMRR_MBEP2D_BOLD_SAPS_',task,'_PA_PHYSIOLOG_*',filesep,'*.IMA']);
                     if size(tempDir,1)==1
                         paths.participant(i).task(t,1).neuroPhysFile = [tempDir.folder,filesep,tempDir.name];

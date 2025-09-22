@@ -12,25 +12,18 @@ nQuestDims = numel(fieldnames(options.quest(1,1)));
 questDimIds  = [1:nQuestDims]';
 
 
+groupTable = getGroups(paths,options);
+
 %% EXTRACT data
+% get row numbers of experiment event entries
+exp_rows = find(~isnat(data.date_exp));
+exp_rows = intersect(exp_rows,find(data.pid<1500));
 
-% get rid of pilot data and excluded data
-PID_rows  = find(~isnan(data.pid));
-for n = 1:numel(PID_rows)
-    if data.pid(PID_rows(n))>1099
-        deleteIdx(n) = n;
-    end
-end
-deleteIdx = deleteIdx';
-deleteIdx(deleteIdx==0)=[];
-PID_rows(deleteIdx)=[];
-
-for n = 1:numel(PID_rows)
-    expdataRow = PID_rows(n);
-    questRow = PID_rows(n)-1;
-    currPID = data.pid(expdataRow);
-    recordID = data.record_id(expdataRow);
-    recordIDrows   = find(data.record_id==data.record_id(expdataRow));
+for n = 1:numel(exp_rows)
+    currPID = data.pid(exp_rows(n));
+    disp(['processing participant no ', num2str(n),' ',num2str(currPID)])
+    recordIDrows   = find(data.record_id==data.record_id(exp_rows(n)));
+    questRow = intersect(recordIDrows,find(strcmp(data.redcap_event_name,'online_questionnai_arm_1')));
     spq1Row  = intersect(recordIDrows,find(strcmp(data.redcap_repeat_instrument,'spq')));
     demogrRow = (intersect(recordIDrows,find(data.agree_participate==1)));
 
@@ -46,15 +39,15 @@ for n = 1:numel(PID_rows)
         ConstrictedAffect_t1(n,:)  = data{spq1Row(1),options.quest(1,1).constrictedAffect};
         Suspiciousness_t1(n,:)     = data{spq1Row(1),options.quest(1,1).suspiciousness};
 
-        % IdeasOfReference_t2(n,:)             = data{questRow,options.quest(2,1).ideasOfReference};
-        % ExcessiveSocialAnxiety_t2(n,:)       = data{questRow,options.quest(2,1).excessiveSocialAnxiety};
-        % MagicalThinking_t2(n,:)              = data{questRow,options.quest(2,1).magicalThinking};
-        % UnusualPerceptualExperiences_t2(n,:) = data{questRow,options.quest(2,1).unusualPerceptualExperiences};
-        % EccentricBehaviour_t2(n,:) = data{questRow,options.quest(2,1).eccentricBehaviour};
-        % NoCloseFriends_t2(n,:)     = data{questRow,options.quest(2,1).noCloseFriends};
-        % OddSpeech_t2(n,:)          = data{questRow,options.quest(2,1).oddSpeech};
-        % ConstrictedAffect_t2(n,:)  = data{questRow,options.quest(2,1).constrictedAffect};
-        % Suspiciousness_t2(n,:)     = data{questRow,options.quest(2,1).suspiciousness};
+        IdeasOfReference_t2(n,:)             = data{questRow,options.quest(2,1).ideasOfReference};
+        ExcessiveSocialAnxiety_t2(n,:)       = data{questRow,options.quest(2,1).excessiveSocialAnxiety};
+        MagicalThinking_t2(n,:)              = data{questRow,options.quest(2,1).magicalThinking};
+        UnusualPerceptualExperiences_t2(n,:) = data{questRow,options.quest(2,1).unusualPerceptualExperiences};
+        EccentricBehaviour_t2(n,:) = data{questRow,options.quest(2,1).eccentricBehaviour};
+        NoCloseFriends_t2(n,:)     = data{questRow,options.quest(2,1).noCloseFriends};
+        OddSpeech_t2(n,:)          = data{questRow,options.quest(2,1).oddSpeech};
+        ConstrictedAffect_t2(n,:)  = data{questRow,options.quest(2,1).constrictedAffect};
+        Suspiciousness_t2(n,:)     = data{questRow,options.quest(2,1).suspiciousness};
 
 
         % >>>> CAPE
@@ -175,46 +168,57 @@ for n = 1:numel(PID_rows)
         bodyAwareness(n,:) = data{questRow,options.quest(6,1).bodyAwareness};
         ansReactivity(n,:) = data{questRow,options.quest(6,1).ansReactivity};
 
-        gender(n,:) = data.gender(demogrRow);
-        age(n,:) = data.age(demogrRow);
+        gender(n,:)  = data.gender(demogrRow);
+        age(n,:)     = data.age(demogrRow);
         edu_yrs(n,:) = data.edu_yrs(demogrRow);
+        
+        
         %% save individual participant data
-        % find participant specific path
 
+        % find participant specific path
+        savePath =[];
         for iDir = 1:numel(paths.participant)
             dirPath = paths.participant(iDir).questDir;
             if contains(dirPath,num2str(currPID))
                 savePath = paths.participant(iDir).questDir;
-            else
-                savePath = [];
             end
         end
-        % SPQTable = table(currPID,age(n),gender(n),edu_yrs(n),nanmean(IdeasOfReference_t1(n,:),2),nanmean(IdeasOfReference_t2(n,:),2),nanmean(ExcessiveSocialAnxiety_t1(n,:),2),nanmean(ExcessiveSocialAnxiety_t2(n,:),2),nanmean(MagicalThinking_t1(n,:),2),...
-        %     nanmean(MagicalThinking_t2(n,:),2),nanmean(UnusualPerceptualExperiences_t1(n,:),2),nanmean(UnusualPerceptualExperiences_t2(n,:),2),nanmean(EccentricBehaviour_t1(n,:),2),...
-        %     nanmean(EccentricBehaviour_t2(n,:),2),nanmean(NoCloseFriends_t1(n,:),2),nanmean(NoCloseFriends_t2(n,:),2),nanmean(OddSpeech_t1(n,:),2),nanmean(OddSpeech_t2(n,:),2),...
-        %     nanmean(ConstrictedAffect_t1(n,:),2),nanmean(ConstrictedAffect_t2(n,:),2),nanmean(Suspiciousness_t1(n,:),2),nanmean(Suspiciousness_t2(n,:),2),'VariableNames',...
-        %     {'ID','age','gender','education in years','IdeasOfReference T1','IdeasOfReference T2','ExcessiveSocialAnxiety T1','ExcessiveSocialAnxiety T2','MagicalThinking T1','MagicalThinking T2',...
-        %     'UnusualPerceptualExperiences T1','UnusualPerceptualExperiences T2','EccentricBehaviour T1','EccentricBehaviour T2','NoCloseFriends T1','NoCloseFriends T2',...
-        %     'OddSpeech T1','OddSpeech T2','ConstrictedAffect T1','ConstrictedAffect T2','Suspiciousness T1','Suspiciousness T2'});
-        %
-        % if ~isempty(savePath)
-        %     save([savePath,'SPQTable.mat'],'SPQTable');
-        %     writetable(SPQTable,[savePath,'SPQTable.csv']);
-        % end
 
-        CAPETable = table(currPID,age(n),gender(n),edu_yrs(n),nanmean(positiveSymptoms_freq(n,:),2),nanmean(positiveSymptoms_distr(n,:),2),nanmean(negativeSymptoms_freq(n,:),2),...
+        % check if current participant is the same as participant in
+        % groupTable
+         if groupTable(n,:).PID== currPID
+             group(n,:) = groupTable.group(n,:);
+         else
+             groupID = find(groupTable.PID== currPID);
+             group(n,:) = groupTable.group(groupID,:);
+         end
+
+        SPQTable = table(currPID,age(n),gender(n),edu_yrs(n),group(n,:),nanmean(IdeasOfReference_t1(n,:),2),nanmean(IdeasOfReference_t2(n,:),2),nanmean(ExcessiveSocialAnxiety_t1(n,:),2),nanmean(ExcessiveSocialAnxiety_t2(n,:),2),nanmean(MagicalThinking_t1(n,:),2),...
+            nanmean(MagicalThinking_t2(n,:),2),nanmean(UnusualPerceptualExperiences_t1(n,:),2),nanmean(UnusualPerceptualExperiences_t2(n,:),2),nanmean(EccentricBehaviour_t1(n,:),2),...
+            nanmean(EccentricBehaviour_t2(n,:),2),nanmean(NoCloseFriends_t1(n,:),2),nanmean(NoCloseFriends_t2(n,:),2),nanmean(OddSpeech_t1(n,:),2),nanmean(OddSpeech_t2(n,:),2),...
+            nanmean(ConstrictedAffect_t1(n,:),2),nanmean(ConstrictedAffect_t2(n,:),2),nanmean(Suspiciousness_t1(n,:),2),nanmean(Suspiciousness_t2(n,:),2),'VariableNames',...
+            {'ID','age','gender','education in years','group','IdeasOfReference T1','IdeasOfReference T2','ExcessiveSocialAnxiety T1','ExcessiveSocialAnxiety T2','MagicalThinking T1','MagicalThinking T2',...
+            'UnusualPerceptualExperiences T1','UnusualPerceptualExperiences T2','EccentricBehaviour T1','EccentricBehaviour T2','NoCloseFriends T1','NoCloseFriends T2',...
+            'OddSpeech T1','OddSpeech T2','ConstrictedAffect T1','ConstrictedAffect T2','Suspiciousness T1','Suspiciousness T2'});
+
+        if ~isempty(savePath)
+            save([savePath,'SPQTable.mat'],'SPQTable');
+            writetable(SPQTable,[savePath,'SPQTable.csv']);
+        end
+
+        CAPETable = table(currPID,age(n),gender(n),edu_yrs(n),group(n,:),nanmean(positiveSymptoms_freq(n,:),2),nanmean(positiveSymptoms_distr(n,:),2),nanmean(negativeSymptoms_freq(n,:),2),...
             nanmean(negativeSymptoms_distr(n,:),2),nanmean(depressiveSymptoms_freq(n,:),2),nanmean(depressiveSymptoms_distr(n,:),2),'VariableNames',...
-            {'ID','age','gender','education in years','positiveSymptoms freq','positiveSymptoms distr','negativeSymptoms freq','negativeSymptoms distr',...
+            {'ID','age','gender','education in years','group','positiveSymptoms freq','positiveSymptoms distr','negativeSymptoms freq','negativeSymptoms distr',...
             'depressiveSymptoms freq','depressiveSymptoms distr'});
         if ~isempty(savePath)
             save([savePath,'CAPETable.mat'],'CAPETable');
             writetable(CAPETable,[savePath,'CAPETable.csv']);
         end
 
-        InteroceptionTable = table(currPID,age(n),gender(n),edu_yrs(n),nanmean(noticing(n,:),2),nanmean(notDistracting(n,:),2),nanmean(notWorrying(n,:),2),...
+        InteroceptionTable = table(currPID,age(n),gender(n),edu_yrs(n),group(n,:),nanmean(noticing(n,:),2),nanmean(notDistracting(n,:),2),nanmean(notWorrying(n,:),2),...
             nanmean(attentionReg(n,:),2),nanmean(emotAwareness(n,:),2),nanmean(selfRegulation(n,:),2),nanmean(bodyListening(n,:),2),nanmean(trusting(n,:),2),...
             nanmean(bodyAwareness(n,:),2),nanmean(ansReactivity(n,:),2),'VariableNames',...
-            {'ID','age','gender','education in years','MAIA noticing','MAIA notDistracting','MAIA notWorrying','MAIA attentionRegulation','MAIA emotAwareness'...
+            {'ID','age','gender','education in years','group','MAIA noticing','MAIA notDistracting','MAIA notWorrying','MAIA attentionRegulation','MAIA emotAwareness'...
             'MAIA selfRegulatrion','MAIA bodyListening','MAIA trusting','BOQ bodyAwareness','BPQ ansReactivity'});
         if ~isempty(savePath)
             save([savePath,'InteroceptionTable.mat'],'InteroceptionTable');
@@ -223,29 +227,29 @@ for n = 1:numel(PID_rows)
     end
 end
 
-PIDs = data.pid(PID_rows);
+PIDs = data.pid(exp_rows);
 
-% SPQmeansTable = table(PIDs,age,gender,edu_yrs,nanmean(IdeasOfReference_t1,2),nanmean(IdeasOfReference_t2,2),nanmean(ExcessiveSocialAnxiety_t1,2),nanmean(ExcessiveSocialAnxiety_t2,2),nanmean(MagicalThinking_t1,2),...
-%     nanmean(MagicalThinking_t2,2),nanmean(UnusualPerceptualExperiences_t1,2),nanmean(UnusualPerceptualExperiences_t2,2),nanmean(EccentricBehaviour_t1,2),...
-%     nanmean(EccentricBehaviour_t2,2),nanmean(NoCloseFriends_t1,2),nanmean(NoCloseFriends_t2,2),nanmean(OddSpeech_t1,2),nanmean(OddSpeech_t2,2),...
-%     nanmean(ConstrictedAffect_t1,2),nanmean(ConstrictedAffect_t2,2),nanmean(Suspiciousness_t1,2),nanmean(Suspiciousness_t2,2),'VariableNames',...
-%     {'ID','age','gender','education in years','IdeasOfReference T1','IdeasOfReference T2','ExcessiveSocialAnxiety T1','ExcessiveSocialAnxiety T2','MagicalThinking T1','MagicalThinking T2',...
-%     'UnusualPerceptualExperiences T1','UnusualPerceptualExperiences T2','EccentricBehaviour T1','EccentricBehaviour T2','NoCloseFriends T1','NoCloseFriends T2',...
-%     'OddSpeech T1','OddSpeech T2','ConstrictedAffect T1','ConstrictedAffect T2','Suspiciousness T1','Suspiciousness T2'});
-% save([paths.group.questData ,'SPQnanmeansTable.mat'],'SPQmeansTable');
-% writetable(SPQmeansTable,[paths.group.questData,'SPQmeansTable.csv']);
+SPQmeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(IdeasOfReference_t1,2),nanmean(IdeasOfReference_t2,2),nanmean(ExcessiveSocialAnxiety_t1,2),nanmean(ExcessiveSocialAnxiety_t2,2),nanmean(MagicalThinking_t1,2),...
+    nanmean(MagicalThinking_t2,2),nanmean(UnusualPerceptualExperiences_t1,2),nanmean(UnusualPerceptualExperiences_t2,2),nanmean(EccentricBehaviour_t1,2),...
+    nanmean(EccentricBehaviour_t2,2),nanmean(NoCloseFriends_t1,2),nanmean(NoCloseFriends_t2,2),nanmean(OddSpeech_t1,2),nanmean(OddSpeech_t2,2),...
+    nanmean(ConstrictedAffect_t1,2),nanmean(ConstrictedAffect_t2,2),nanmean(Suspiciousness_t1,2),nanmean(Suspiciousness_t2,2),'VariableNames',...
+    {'ID','age','gender','education in years','group','IdeasOfReference T1','IdeasOfReference T2','ExcessiveSocialAnxiety T1','ExcessiveSocialAnxiety T2','MagicalThinking T1','MagicalThinking T2',...
+    'UnusualPerceptualExperiences T1','UnusualPerceptualExperiences T2','EccentricBehaviour T1','EccentricBehaviour T2','NoCloseFriends T1','NoCloseFriends T2',...
+    'OddSpeech T1','OddSpeech T2','ConstrictedAffect T1','ConstrictedAffect T2','Suspiciousness T1','Suspiciousness T2'});
+save([paths.group.questData ,'SPQnanmeansTable.mat'],'SPQmeansTable');
+writetable(SPQmeansTable,[paths.group.questData,'SPQmeansTable.csv']);
 
-CAPEMeansTable = table(PIDs,age,gender,edu_yrs,nanmean(positiveSymptoms_freq,2),nanmean(positiveSymptoms_distr,2),nanmean(negativeSymptoms_freq,2),...
+CAPEMeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(positiveSymptoms_freq,2),nanmean(positiveSymptoms_distr,2),nanmean(negativeSymptoms_freq,2),...
     nanmean(negativeSymptoms_distr,2),nanmean(depressiveSymptoms_freq,2),nanmean(depressiveSymptoms_distr,2),'VariableNames',...
-    {'ID','age','gender','education in years','positiveSymptoms freq','positiveSymptoms distr','negativeSymptoms freq','negativeSymptoms distr',...
+    {'ID','age','gender','education in years','group','positiveSymptoms freq','positiveSymptoms distr','negativeSymptoms freq','negativeSymptoms distr',...
     'depressiveSymptoms freq','depressiveSymptoms distr'});
 save([paths.group.questData ,'CAPEMeansTable.mat'],'CAPEMeansTable');
 writetable(CAPEMeansTable,[paths.group.questData,'CAPEMeansTable.csv']);
 
-InteroceptionMeansTable = table(PIDs,age,gender,edu_yrs,nanmean(noticing,2),nanmean(notDistracting,2),nanmean(notWorrying,2),...
+InteroceptionMeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(noticing,2),nanmean(notDistracting,2),nanmean(notWorrying,2),...
     nanmean(attentionReg,2),nanmean(emotAwareness,2),nanmean(selfRegulation,2),nanmean(bodyListening,2),nanmean(trusting,2),...
     nanmean(bodyAwareness,2),nanmean(ansReactivity,2),'VariableNames',...
-    {'ID','age','gender','education in years','MAIA noticing','MAIA notDistracting','MAIA notWorrying','MAIA attentionRegulation','MAIA emotAwareness'...
+    {'ID','age','gender','education in years','group','MAIA noticing','MAIA notDistracting','MAIA notWorrying','MAIA attentionRegulation','MAIA emotAwareness'...
     'MAIA selfRegulatrion','MAIA bodyListening','MAIA trusting','BOQ bodyAwareness','BPQ ansReactivity'});
 save([paths.group.questData ,'InteroceptionMeansTable.mat'],'InteroceptionMeansTable');
 writetable(InteroceptionMeansTable,[paths.group.questData,'InteroceptionMeansTable.csv']);
