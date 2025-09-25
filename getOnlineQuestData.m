@@ -50,7 +50,7 @@ for n = 1:numel(exp_rows)
         Suspiciousness_t2(n,:)     = data{questRow,options.quest(2,1).suspiciousness};
 
 
-        % >>>> CAPE
+        % >>>> CAPE % input 0 instead if missing?
         positiveSymptoms_freq(n,:)    = data{questRow,options.quest(3,1).positiveSymptoms_freq};
         positiveSymptoms_distr(n,:)   = data{questRow,options.quest(3,1).positiveSymptoms_distr};
         negativeSymptoms_freq(n,:)    = data{questRow,options.quest(3,1).negativeSymptoms_freq};
@@ -236,6 +236,7 @@ SPQmeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(IdeasOfReference_t1,
     {'ID','age','gender','education in years','group','IdeasOfReference T1','IdeasOfReference T2','ExcessiveSocialAnxiety T1','ExcessiveSocialAnxiety T2','MagicalThinking T1','MagicalThinking T2',...
     'UnusualPerceptualExperiences T1','UnusualPerceptualExperiences T2','EccentricBehaviour T1','EccentricBehaviour T2','NoCloseFriends T1','NoCloseFriends T2',...
     'OddSpeech T1','OddSpeech T2','ConstrictedAffect T1','ConstrictedAffect T2','Suspiciousness T1','Suspiciousness T2'});
+SPQmeansTable = sortrows(SPQmeansTable,'ID');
 save([paths.group.questData ,'SPQnanmeansTable.mat'],'SPQmeansTable');
 writetable(SPQmeansTable,[paths.group.questData,'SPQmeansTable.csv']);
 
@@ -243,6 +244,7 @@ CAPEMeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(positiveSymptoms_fr
     nanmean(negativeSymptoms_distr,2),nanmean(depressiveSymptoms_freq,2),nanmean(depressiveSymptoms_distr,2),'VariableNames',...
     {'ID','age','gender','education in years','group','positiveSymptoms freq','positiveSymptoms distr','negativeSymptoms freq','negativeSymptoms distr',...
     'depressiveSymptoms freq','depressiveSymptoms distr'});
+CAPEMeansTable = sortrows(CAPEMeansTable,'ID');
 save([paths.group.questData ,'CAPEMeansTable.mat'],'CAPEMeansTable');
 writetable(CAPEMeansTable,[paths.group.questData,'CAPEMeansTable.csv']);
 
@@ -251,6 +253,7 @@ InteroceptionMeansTable = table(PIDs,age,gender,edu_yrs,group,nanmean(noticing,2
     nanmean(bodyAwareness,2),nanmean(ansReactivity,2),'VariableNames',...
     {'ID','age','gender','education in years','group','MAIA noticing','MAIA notDistracting','MAIA notWorrying','MAIA attentionRegulation','MAIA emotAwareness'...
     'MAIA selfRegulatrion','MAIA bodyListening','MAIA trusting','BOQ bodyAwareness','BPQ ansReactivity'});
+InteroceptionMeansTable = sortrows(InteroceptionMeansTable,'ID');
 save([paths.group.questData ,'InteroceptionMeansTable.mat'],'InteroceptionMeansTable');
 writetable(InteroceptionMeansTable,[paths.group.questData,'InteroceptionMeansTable.csv']);
 end
