@@ -58,8 +58,8 @@ full_model = create_model(
     action_model,
     population_model,
     data,
-    observation_cols = (; observation = :input, observed_avatar = :stimulus),
-    action_cols = (; choice = :response),
+    observation_cols = (;observation = :input, observed_avatar = :stimulus),
+    action_cols = (;choice = :response),
     session_cols = [:ID, :task_type], #We use ID and task type to define the sessions
     impute_missing_actions = false, #We just ignore the missing actions
     check_parameter_rejections = true, #We check whether the parameters make the HGF break
