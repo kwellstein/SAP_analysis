@@ -6,17 +6,17 @@ using JLD2 #For saving the results
 ### READ DATA ###
 
 #Get paths
-path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-1)])
-dataPath = joinpath(path_to_this_file, "data")
-savePath = joinpath(path_to_this_file, "results")
+path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-2)])
+dataPath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling";
+savePath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/results";
 
 #Get all the pilot data files by looking for all CSV files in a given folder
 # pilot_data_files = glob("*.csv", joinpath(path_to_this_file, "pilots"))
 # pilot_data_results = joinpath(savePath, "pilots")
 #Get main data files for both SAP and SAPC task by looking for all CSV files in a given folder
 
-main_data_files = glob("*behav.csv", joinpath(dataPath, "main"))
-main_data_results = joinpath(savePath, "main")
+main_data_files = glob("*behav.csv", joinpath(dataPath, "main/SAP"))
+main_data_results = joinpath(savePath, "main/SAP")
 
 #create empty container for the dataframes
 all_dfs = Vector{DataFrame}(undef, length(main_data_files))
@@ -27,13 +27,13 @@ for (i, filename) in enumerate(main_data_files)
     #Add ID column
     single_df.ID .= String(split(basename(filename), "_")[2])
     #Add task type column
-    if occursin("SAPC", filename)
-        single_df.task_type .= "SAPC"
-    elseif occursin("SAP", filename)
-        single_df.task_type .= "SAP"
-    else
-        error("Unknown task type in filename: $filename")
-    end
+ #   if occursin("SAPC", filename)
+ #       single_df.task_type .= "SAPC"
+  #  elseif occursin("SAP", filename)
+ #       single_df.task_type .= "SAP"
+  #  else
+ #       error("Unknown task type in filename: $filename")
+ #   end
     #Add the dataframe to the vector
     all_dfs[i] = single_df
 end
@@ -58,9 +58,9 @@ full_model = create_model(
     action_model,
     population_model,
     data,
-    observation_cols = (;observation = :input, observed_avatar = :stimulus),
-    action_cols = (;choice = :response),
-    session_cols = [:ID, :task_type], #We use ID and task type to define the sessions
+    observation_cols = (; observation = :input, observed_avatar = :stimulus),
+    action_cols = (; choice = :response),
+    session_cols = :ID, #We use ID and task type to define the sessions
     impute_missing_actions = false, #We just ignore the missing actions
     check_parameter_rejections = true, #We check whether the parameters make the HGF break
 )
@@ -74,6 +74,15 @@ full_model = create_model(
 # ad_type = AutoReverseDiff(; compile = true)
 
 # #Sample the posterior
+posterior_chains = sample_posterior!(
+
+    full_model,
+
+    n_samples = 1000,
+
+    n_chains = 4,
+
+)
 # posterior_chains = sample_posterior!(
 #     full_model,
 #     MCMCThreads(),
@@ -111,8 +120,6 @@ CSV.write(joinpath(main_data_results,"posterior_session_params_medians.csv"), po
 CSV.write(joinpath(main_data_results,"posterior_session_params_std.csv"), posterior_df_std)
 
 
-
-
 #Get a dataframe with state trajectories
 state_trajectories = get_state_trajectories!(full_model, [:xbinary1_prediction_mean, :xbinary1_prediction_precision, :xprob1_posterior_mean, :xprob1_posterior_precision, :xprob1_value_prediction_error, 
 :xbinary2_prediction_mean, :xbinary2_prediction_precision, :xprob2_posterior_mean, :xprob2_posterior_precision, :xprob2_value_prediction_error, 
@@ -121,8 +128,6 @@ state_trajectories = get_state_trajectories!(full_model, [:xbinary1_prediction_m
 
 trajectories_df = summarize(state_trajectories, :posterior), median)
 CSV.write(joinpath(main_data_results,"state_trajectories.csv"), trajectories_df)
-
-
 
 
 #We can do all the same things with the prior
