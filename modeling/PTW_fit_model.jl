@@ -75,13 +75,10 @@ full_model = create_model(
 
 # #Sample the posterior
 posterior_chains = sample_posterior!(
-
     full_model,
-
+    MCMCThreads(),
     n_samples = 1000,
-
     n_chains = 4,
-
 )
 # posterior_chains = sample_posterior!(
 #     full_model,
