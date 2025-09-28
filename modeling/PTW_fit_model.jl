@@ -48,9 +48,16 @@ include("helper_functions/create_action_model.jl")
 action_model = create_premade_action_model(4)
 
 #Define independent sessions population model prior
+#  Comment out the parameters not to be estimated
 population_model = (;
+    #The action noise β
     action_noise = truncated(Normal(0.1, 1), lower = 0),
+
+    #The tonic volatility ω₂
     xprob_volatility = truncated(Normal(-6, 2), upper = -1),
+
+    #The coupling strength κ₂₁
+    xprob_xbin_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
 )
 
 #Create full model ready for fitting
