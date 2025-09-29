@@ -54,7 +54,7 @@ population_model = (;
     action_noise = truncated(Normal(0.1, 1), lower = 0),
 
     #The tonic volatility ω₂
-   #xprob_volatility = truncated(Normal(-6, 2), upper = -1),
+   xprob_volatility = truncated(Normal(-6, 2), upper = -1),
 
     #The coupling strength κ₂₁
     xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
@@ -83,7 +83,7 @@ full_model = create_model(
 # #Sample the posterior
 posterior_chains = sample_posterior!(
     full_model,
-    n_samples = 250,
+    n_samples = 1000,
     n_chains = 1,
 )
 # posterior_chains = sample_posterior!(
