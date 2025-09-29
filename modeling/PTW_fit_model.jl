@@ -30,14 +30,14 @@ for (i, filename) in enumerate(main_data_files)
     single_df = CSV.read(filename, DataFrame, missingstring = "NaN")
     #Add ID column
     single_df.ID .= String(split(basename(filename), "_")[2])
-    #Add task type column
-   if occursin("SAPC", filename)
-       single_df.task_type .= "SAPC"
-   elseif occursin("SAP", filename)
-       single_df.task_type .= "SAP"
-   else
-       error("Unknown task type in filename: $filename")
-   end
+#    #Add task type column
+#   if occursin("SAPC", filename)
+#       single_df.task_type .= "SAPC"
+#   elseif occursin("SAP", filename)
+#       single_df.task_type .= "SAP"
+#   else
+#       error("Unknown task type in filename: $filename")
+#   end
     #Add the dataframe to the vector
     all_dfs[i] = single_df
 end
@@ -80,7 +80,7 @@ full_model = create_model(
     data,
     observation_cols = (; observation = :input, observed_avatar = :stimulus),
     action_cols = (; choice = :response),
-    session_cols = [:ID, :task_type], #We use ID and task type to define the sessions
+    session_cols = :ID, #:task_type], #We use ID and task type to define the sessions
     impute_missing_actions = false, #We just ignore the missing actions
     check_parameter_rejections = true, #We check whether the parameters make the HGF break
 )
@@ -92,8 +92,8 @@ full_model = create_model(
 # #Sample the posterior
 posterior_chains = sample_posterior!(
     full_model,
-    n_samples = 20,
-    n_chains = 1,
+    n_samples = 250,
+    n_chains = 2,
     init_params = :MAP
 )
 
