@@ -9,15 +9,15 @@ n_participants = 30
 
 #Get paths
 path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-2)])
-dataPath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling";
-savePath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/results";
+dataPath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/main/SAP";
+savePath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/results/main/SAP";
 main_data_files = glob("*behav.csv", joinpath(dataPath, "main/SAP"))
 main_data_results = joinpath(savePath, "main/SAP")
 
     
 #Get all the pilot data files by looking for all CSV files in a given folder
-dataPath = joinpath(path_to_this_file, "modeling", "data", "main")
-savePath = joinpath(path_to_this_file, "modeling", "results", "main")
+#dataPath = joinpath(path_to_this_file, "modeling", "data", "main")
+#savePath = joinpath(path_to_this_file, "modeling", "results", "main")
 #Get main data files for both SAP and SAPC task by looking for all CSV files in a given folder
 main_data_files = glob("*.csv", dataPath)
 main_data_results = joinpath(savePath)
@@ -61,13 +61,13 @@ population_model = (;
     action_noise = truncated(Normal(1, 0.3), lower = 0),
 
     #The tonic volatility ω₂
-    xprob_volatility = truncated(Normal(-6, 2), upper = -1),
+    #xprob_volatility = truncated(Normal(-6, 2), upper = -1),
 
     #The tonic volatility ω₃
     #xvol_volatility = truncated(Normal(-6, 2), upper = -1),
 
     #The coupling strength κ₂₁ between probability and binary
-    #xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
+    xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
 
     #The coupling strength κ₃₂ between probability and binary
     xprob_xvol_coupling_strength = truncated(Normal(1, 0.2), lower = 0),
@@ -92,8 +92,8 @@ full_model = create_model(
 # #Sample the posterior
 posterior_chains = sample_posterior!(
     full_model,
-    n_samples = 250,
-    n_chains = 2,
+    n_samples = 500,
+    n_chains = 4,
     init_params = :MAP
 )
 

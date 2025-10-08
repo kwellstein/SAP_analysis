@@ -45,8 +45,6 @@ options.rng.nRandInit  = 100;
 if ~isempty(PID)
     dataFolder = [paths.env.data,options.dataSet.acronym,'_',PID];
     options.dataSet.nParticipants = 1;
-    paths.participant.behavDir  = [dataFolder,filesep,'experiment',filesep];
-    paths.participant.periphDir = [dataFolder,filesep,'peripheral',filesep];
     paths.participant.neuroDir  = [dataFolder,filesep,'neuro',filesep];
     paths.participant.questDir  = [dataFolder,filesep,'questionnaires',filesep];
     paths.participant.modelDir  = [dataFolder,filesep,'modeling',filesep];
@@ -54,8 +52,10 @@ if ~isempty(PID)
 
     for t = 1:options.dataSet.nTasks
         task = options.dataSet.tasks{t};
-        paths.participant.task(t,1).optsFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
-        paths.participant.task(t,1).dataFile = [paths.participant.behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+        paths.participant.task(t,1).behavDir  = [dataFolder,filesep,task,filesep];
+        paths.participant.task(t,1).periphDir = [dataFolder,filesep,task,filesep,'peripheral',filesep];
+        paths.participant.task(t,1).optsFile  = [paths.participant.task(t,1).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
+        paths.participant.task(t,1).dataFile  = [paths.participant.task(t,1).periphDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
         tempDir = dir([paths.participant.neuroDir,'NEURO_SYSTEMS_NEUROSCIENCE_*',filesep,'CMRR_MBEP2D_BOLD_SAPS_',task,'_PA_PHYSIOLOG_*',filesep,'*.IMA']);
         paths.participant.task(t,1).neuroPhysFile = [tempDir.folder,filesep,tempDir.name];
         for m = 1:numel(options.model.space)
@@ -74,8 +74,6 @@ else
                 digits = regexp(d(i).name, '[0-9]');
                 PID = str2double(d(i).name(digits));
                 options.dataSet.PIDs(i) = PID;
-                paths.participant(i).behavDir  = [paths.env.data,d(i).name,filesep,'experiment',filesep];
-                paths.participant(i).periphDir = [paths.env.data,d(i).name,filesep,'peripheral',filesep];
                 paths.participant(i).neuroDir  = [paths.env.data,d(i).name,filesep,'neuro',filesep];
                 paths.participant(i).questDir  = [paths.env.data,d(i).name,filesep,'questionnaires',filesep];
                 paths.participant(i).modelDir  = [paths.env.data,d(i).name,filesep,'modeling',filesep];
@@ -83,9 +81,11 @@ else
 
                 for t = 1:options.dataSet.nTasks
                     task = options.dataSet.tasks{t};
-                    paths.participant(i).task(t,1).optsFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
-                    paths.participant(i).task(t,1).dataFile = [paths.participant(i).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
-
+                    paths.participant(i).task(t,1).behavDir  = [paths.env.data,d(i).name,filesep,task,filesep];
+                    paths.participant(i).task(t,1).periphDir = [paths.env.data,d(i).name,filesep,task,filesep,'peripheral',filesep];
+                    paths.participant(i).task(t,1).optsFile  = [paths.participant(i).task(t,1).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_optionsFile.mat'];
+                    paths.participant(i).task(t,1).dataFile  = [paths.participant(i).task(t,1).behavDir,'SNG_',task,'_',char(string(PID)),'_fmri_dataFile.mat'];
+                
                     tempDir = dir([paths.participant(i).neuroDir,'NEURO_SYSTEMS_NEUROSCIENCE_*',filesep,'CMRR_MBEP2D_BOLD_SAPS_',task,'_PA_PHYSIOLOG_*',filesep,'*.IMA']);
                     if size(tempDir,1)==1
                         paths.participant(i).task(t,1).neuroPhysFile = [tempDir.folder,filesep,tempDir.name];

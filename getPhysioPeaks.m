@@ -24,10 +24,10 @@ for t = 1:dataSetOpts.dataSet.nTasks
                 taskOpts = load(paths.participant(n).task(t,1).optsFile);
                 taskOpts = taskOpts.options;
 
-                f = dir([paths.participant(n).periphDir,num2str(currPID),currTask,'_ppu.mat']);
+                f = dir([paths.participant(n).task(t,1).periphDir,num2str(currPID),currTask,'_ppu.mat']);
                 if ~isempty(f)
 
-                    load([paths.participant(n).periphDir,num2str(currPID),currTask,'_ppu.mat']);
+                    load([paths.participant(n).task(t,1).periphDir,num2str(currPID),currTask,'_ppu.mat']);
 
                     % smooth data using Savitzy-Golay Filter
                     ppuData = smooth(ppu_data.data,'sgolay');
