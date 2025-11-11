@@ -3,9 +3,35 @@ using Glob, CSV, DataFrames #For loading the data
 using StatsPlots #For plotting
 using JLD2 #For saving the results
 
+
+### CREATE MODEL ###
+#Read file with premade function
+include("helper_functions/create_action_model.jl")
+#Create action model
+action_model = create_premade_action_model(4)
+
+#Define independent sessions population model prior
+#  Comment out the parameters not to be estimated
+population_model = (;
+    #The action noise β
+    action_noise = truncated(Normal(1, 0.3), lower = 0),
+
+    #The tonic volatility ω₂
+    xprob_volatility = truncated(Normal(-6, 2), upper = -1),
+
+    #The tonic volatility ω₃
+    #xvol_volatility = truncated(Normal(-6, 2), upper = -1),
+
+    #The coupling strength κ₂₁ between probability and binary
+    #xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
+
+    #The coupling strength κ₃₂ between probability and binary
+    xprob_xvol_coupling_strength = truncated(Normal(1, 0.2), lower = 0),
+)
+
 ### READ DATA ###
 
-n_participants = 30
+n_participants = 40
 
 #Get paths
 path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-2)])
@@ -44,35 +70,15 @@ end
 #Combine the datasets
 data = vcat(all_dfs...)
 
+ groupby(data(),:ID)
+ groupby(add_dfs(),:ID)
+ 
+
+# use groupby in dataframe and tell it to group by ID and that takes data and puts it into many dataframes
+# then pick one after the other, then the singe participant dataframes arw called subdataframes. 
+# make subdataframes into dataframes in the foor loop
 
 ### SUBSET THE DATA HERE ###
-
-
-### CREATE MODEL ###
-#Read file with premade function
-include("helper_functions/create_action_model.jl")
-#Create action model
-action_model = create_premade_action_model(4)
-
-#Define independent sessions population model prior
-#  Comment out the parameters not to be estimated
-population_model = (;
-    #The action noise β
-    action_noise = truncated(Normal(1, 0.3), lower = 0),
-
-    #The tonic volatility ω₂
-    #xprob_volatility = truncated(Normal(-6, 2), upper = -1),
-
-    #The tonic volatility ω₃
-    #xvol_volatility = truncated(Normal(-6, 2), upper = -1),
-
-    #The coupling strength κ₂₁ between probability and binary
-    xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
-
-    #The coupling strength κ₃₂ between probability and binary
-    xprob_xvol_coupling_strength = truncated(Normal(1, 0.2), lower = 0),
-)
-
 #Create full model ready for fitting
 full_model = create_model(
     action_model,
@@ -92,9 +98,9 @@ full_model = create_model(
 # #Sample the posterior
 posterior_chains = sample_posterior!(
     full_model,
-    n_samples = 500,
-    n_chains = 4,
-    init_params = :MAP
+    n_samples = 50,
+    n_chains = 1,
+   # init_params = :MAP
 )
 
 
