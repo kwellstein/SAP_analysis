@@ -20,9 +20,9 @@ for t = 1:options.dataSet.nTasks
             RTs = dataFile.(predFieldName).rt(:,1);
             meanRTGo(n,:)   = nanmean(RTs(dataFile.(predFieldName).response(:,1)==1));
             meanRTNoGo(n,:) = nanmean(RTs(dataFile.(predFieldName).response(:,1)==0));
-            nNaNs(n,:)   = sum(isnan(dataFile.(predFieldName).response(:,1)));
+            nNans = 
             groupID = find(groupTable.PID== currPID);
-            group(n,:) = groupTable.group(groupID,:);
+            group = groupTable.group(groupID,:);
             if strcmp(group,'highScorer')
                 colour = [0.7176    0.2745    1.0000];
             else
@@ -30,14 +30,11 @@ for t = 1:options.dataSet.nTasks
             end
 
             plot(dataFile.(predFieldName).response(:,1),'Color',colour);
-            hold on;
         else
             nGo(n,:)   = NaN;
             nNoGo(n,:) = NaN;
             meanRTGo(n,:)   = NaN;
             meanRTNoGo(n,:) = NaN;
-            nNaNs(n,:) = NaN;
-            group(n,:) = {'missing'};
         end
     end
         % check if current participant is the same as participant in
@@ -52,22 +49,22 @@ for t = 1:options.dataSet.nTasks
         savefig([paths.group.resultsPath,predFieldName,'.fig']);
 
         if strcmp(currTask,'SAP')
-            SAP_behavData = table(options.dataSet.PIDs,group,nNaNs,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
-                {'ID','group','nMissedTrials','nSmiles','nNeutrals','meanRTParticipantSmiles','meanRTParticipantNeutral'});
+            SAP_behavData = table(options.dataSet.PIDs,group,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
+                {'ID','group','nSmiles','nNeutrals','meanRTParticipantSmiles','meanRTParticipantNeutral'});
 
             save([paths.group.resultsPath,'SAP_behavData.mat'],'SAP_behavData');
             writetable(SAP_behavData,[paths.group.resultsPath ,'SAP_behavData.csv']);
 
         elseif strcmp(currTask,'SAPC')
-            SAPC_behavData = table(options.dataSet.PIDs,group,nNaNs,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
-                {'ID','group','nMissedTrials','nCollects','nNoCollects','meanRTParticipantCollects','meanRTNoCollects'});
+            SAPC_behavData = table(options.dataSet.PIDs,group,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
+                {'ID','group','nCollects','nNoCollects','meanRTParticipantCollects','meanRTNoCollects'});
 
             save([paths.group.resultsPath,'SAPC_behavData.mat'],'SAPC_behavData');
             writetable(SAPC_behavData,[paths.group.resultsPath ,'SAPC_behavData.csv']);
 
         elseif strcmp(currTask,'AAA')
-            AAA_behavData = table(options.dataSet.PIDs,group,nNaNs,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
-                {'ID','group','nMissedTrials','nApproaches','nAvoids','meanRTParticipantApproaches','meanRTAvoids'});
+            AAA_behavData = table(options.dataSet.PIDs,group,nGo,nNoGo,meanRTGo,meanRTNoGo,'VariableNames',...
+                {'ID','group','nApproaches','nAvoids','meanRTParticipantApproaches','meanRTAvoids'});
 
             save([paths.group.resultsPath,'AAA_behavData.mat'],'AAA_behavData');
             writetable( AAA_behavData,[paths.group.resultsPath ,'AAA_behavData.csv']);

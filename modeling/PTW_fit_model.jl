@@ -2,7 +2,8 @@ using ActionModels, HierarchicalGaussianFiltering #For the modeling
 using Glob, CSV, DataFrames #For loading the data
 using StatsPlots #For plotting
 using JLD2 #For saving the results
-
+using ADTypes: AutoReverseDiff
+import ReverseDiff
 
 ### CREATE MODEL ###
 #Read file with premade function
@@ -31,8 +32,6 @@ population_model = (;
 
 ### READ DATA ###
 
-n_participants = 40
-
 #Get paths
 path_to_this_file = joinpath(splitpath(@__FILE__)[1:(end-2)])
 dataPath = "/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/main/SAP";
@@ -49,34 +48,14 @@ main_data_files = glob("*.csv", dataPath)
 main_data_results = joinpath(savePath)
 
 #create empty container for the dataframes
-all_dfs = Vector{DataFrame}(undef, length(main_data_files))
+
+# data = Vector{DataFrame}(undef, length(main_data_files))
 #Go through each pilot data file
-for (i, filename) in enumerate(main_data_files)
+for filename in enumerate(main_data_files)
     #Read it in
-    single_df = CSV.read(filename, DataFrame, missingstring = "NaN")
+     data = CSV.read(filename[2], DataFrame, missingstring = "NaN")
     #Add ID column
-    single_df.ID .= String(split(basename(filename), "_")[2])
-#    #Add task type column
-#   if occursin("SAPC", filename)
-#       single_df.task_type .= "SAPC"
-#   elseif occursin("SAP", filename)
-#       single_df.task_type .= "SAP"
-#   else
-#       error("Unknown task type in filename: $filename")
-#   end
-    #Add the dataframe to the vector
-    all_dfs[i] = single_df
-end
-#Combine the datasets
-data = vcat(all_dfs...)
-
- groupby(data(),:ID)
- groupby(add_dfs(),:ID)
- 
-
-# use groupby in dataframe and tell it to group by ID and that takes data and puts it into many dataframes
-# then pick one after the other, then the singe participant dataframes arw called subdataframes. 
-# make subdataframes into dataframes in the foor loop
+     ID = String(split(basename(filename[2]), "_")[2])
 
 ### SUBSET THE DATA HERE ###
 #Create full model ready for fitting
@@ -86,7 +65,7 @@ full_model = create_model(
     data,
     observation_cols = (; observation = :input, observed_avatar = :stimulus),
     action_cols = (; choice = :response),
-    session_cols = :ID, #:task_type], #We use ID and task type to define the sessions
+    #session_cols = :ID, #:task_type], #We use ID and task type to define the sessions
     impute_missing_actions = false, #We just ignore the missing actions
     check_parameter_rejections = true, #We check whether the parameters make the HGF break
 )
@@ -98,25 +77,22 @@ full_model = create_model(
 # #Sample the posterior
 posterior_chains = sample_posterior!(
     full_model,
-    n_samples = 50,
+    n_samples = 10,
     n_chains = 1,
    # init_params = :MAP
 )
 
-
 #Load ReverseDiff AD backend
-using ADTypes: AutoReverseDiff
-import ReverseDiff
 ad_type = AutoReverseDiff(; compile = true)
 
-posterior_chains = sample_posterior!(
-    full_model,
-    MCMCThreads(),
-    n_samples = 250,
-    n_chains = 4,
-    ad_type = ad_type,
-    init_params = :MAP
-)
+#posterior_chains = sample_posterior!(
+#    full_model,
+#    MCMCThreads(),
+#    n_samples = 250,
+#    n_chains = 4,
+#    ad_type = ad_type,
+#    init_params = :MAP
+#)
 
 @save joinpath(main_data_results,"full_model.jld2") full_model
 
@@ -142,7 +118,7 @@ plot(posterior_chains)
 posterior_session_params = get_session_parameters!(full_model, :posterior)
 posterior_df_medians = summarize(posterior_session_params, median)
 posterior_df_std = summarize(posterior_session_params, std)
-CSV.write(joinpath(main_data_results,"posterior_session_params_medians.csv"), posterior_df_medians)
+CSV.write(joinpath(main_data_results, "$ID _posterior_session_params_medians.csv"), posterior_df_medians)
 CSV.write(joinpath(main_data_results,"posterior_session_params_std.csv"), posterior_df_std)
 
 #Get a dataframe with the posterior state estimates and the std of the uncertainty
@@ -188,6 +164,6 @@ trajectories_df = summarize(get_state_trajectories!(full_model, :xvol_posterior_
 CSV.write(joinpath(main_data_results,"vol_posterior_mean.csv"), trajectories_df)
 
 
-
 #Save the model with everything calculated
 @save joinpath(main_data_results,"full_model.jld2") full_model
+end
