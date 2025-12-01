@@ -21,7 +21,7 @@ population_model = (;
     xprob_volatility = truncated(Normal(-6, 2), upper = -1),
 
     #The tonic volatility ω₃
-    #xvol_volatility = truncated(Normal(-6, 2), upper = -1),
+    xvol_volatility = truncated(Normal(-6, 2), upper = -1),
 
     #The coupling strength κ₂₁ between probability and binary
     #xbinary_xprob_coupling_strength = truncated(Normal(1, 0.5), lower = 0),
