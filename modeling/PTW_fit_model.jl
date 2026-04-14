@@ -49,13 +49,64 @@ main_data_results = joinpath(savePath)
 
 #create empty container for the dataframes
 
-# data = Vector{DataFrame}(undef, length(main_data_files))
+#create empty container for the dataframes
+all_dfs = Vector{DataFrame}(undef, length(main_data_files))
 #Go through each pilot data file
-for filename in enumerate(main_data_files)
+for (i, filename) in enumerate(main_data_files)
     #Read it in
-     data = CSV.read(filename[2], DataFrame, missingstring = "NaN")
+    single_df = CSV.read(filename, DataFrame, missingstring = "NaN")
     #Add ID column
-     ID = String(split(basename(filename[2]), "_")[2])
+    single_df.ID .= String(split(basename(filename), "_")[2])
+#    #Add task type column
+#   if occursin("SAPC", filename)
+#       single_df.task_type .= "SAPC"
+#   elseif occursin("SAP", filename)
+#       single_df.task_type .= "SAP"
+#   else
+#       error("Unknown task type in filename: $filename")
+#   end
+    #Add the dataframe to the vector
+    all_dfs[i] = single_df
+end
+#Combine the datasets
+data = vcat(all_dfs...)
+
+
+### FOR EVERY PARTICIPANT ###
+
+
+map(df -)
+
+
+
+
+for group_df in groupby(data, :ID)
+
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### SUBSET THE DATA HERE ###
 #Create full model ready for fitting
@@ -73,31 +124,46 @@ full_model = create_model(
 
 ### FIT MODEL ###
 
-### Small version to test ###
-# #Sample the posterior
-posterior_chains = sample_posterior!(
-    full_model,
-    n_samples = 10,
-    n_chains = 1,
-   # init_params = :MAP
-)
+LOADDATA = true
+SMALLVERSION = true
 
-#Load ReverseDiff AD backend
-ad_type = AutoReverseDiff(; compile = true)
+if LOADDATA
 
-#posterior_chains = sample_posterior!(
-#    full_model,
-#    MCMCThreads(),
-#    n_samples = 250,
-#    n_chains = 4,
-#    ad_type = ad_type,
-#    init_params = :MAP
-#)
+    #Load model
+    @load joinpath("/Volumes/Samsung_T5/SNG/projects/SAPS/data/modeling/results/main/SAP_run0","full_model.jld2") full_model
 
-@save joinpath(main_data_results,"full_model.jld2") full_model
+else
 
-#Load model
-# @load joinpath(main_data_results,"full_model.jld2") full_model
+    ### Sample the posterior ###
+
+    #Load ReverseDiff AD backend
+    ad_type = AutoReverseDiff(; compile = true)
+
+    if SMALLVERSION
+        # small verision for testing
+        posterior_chains = sample_posterior!(
+            full_model,
+            n_samples = 10,
+            n_chains = 1,
+        )
+    else
+        # large version
+        posterior_chains = sample_posterior!(
+            full_model,
+            MCMCThreads(),
+            n_samples = 250,
+            n_chains = 4,
+            ad_type = ad_type,
+            init_params = :MAP
+        )
+    end
+
+    #Save model
+    @save joinpath(main_data_results,"full_model.jld2") full_model
+
+end
+
+
 
 
 #Plot the posterior
@@ -117,8 +183,7 @@ plot(posterior_chains)
 #Get a dataframe with the posterior parameter estimates and the std of the uncertainty
 posterior_session_params = get_session_parameters!(full_model, :posterior)
 posterior_df_medians = summarize(posterior_session_params, median)
-posterior_df_std = summarize(posterior_session_params, std)
-CSV.write(joinpath(main_data_results, "$ID _posterior_session_params_medians.csv"), posterior_df_medians)
+posterior_df_std = summarize(posterior_session_params, std) # get lower and higher quantile of credible intervals
 CSV.write(joinpath(main_data_results,"posterior_session_params_std.csv"), posterior_df_std)
 
 #Get a dataframe with the posterior state estimates and the std of the uncertainty
@@ -166,4 +231,3 @@ CSV.write(joinpath(main_data_results,"vol_posterior_mean.csv"), trajectories_df)
 
 #Save the model with everything calculated
 @save joinpath(main_data_results,"full_model.jld2") full_model
-end
