@@ -176,43 +176,43 @@ for df in collect(groupby(data, [:ID, :task_type]))
     #Prediction for avatar 1
     trajectories = get_state_trajectories!(am_model, :xbinary1_prediction_mean, )
     trajectories_df = summarize(trajectories, median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face1_prediction_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face1_prediction_mean_$(participant_string).csv"), trajectories_df)
 
     #Prediction for avatar 2
     trajectories_df = summarize(get_state_trajectories!(am_model, :xbinary2_prediction_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face2_prediction_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face2_prediction_mean_$(participant_string).csv"), trajectories_df)
 
     #Prediction for avatar 3
     trajectories_df = summarize(get_state_trajectories!(am_model, :xbinary3_prediction_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face3_prediction_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face3_prediction_mean_$(participant_string).csv"), trajectories_df)
 
     #Belief for probability parent, avatar 1
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob1_posterior_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face1_posterior_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face1_posterior_mean_$(participant_string).csv"), trajectories_df)
 
     #Prediction error for probability parent for avatar 1
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob1_value_prediction_error, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face1_value_prediction_error.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face1_value_prediction_error_$(participant_string).csv"), trajectories_df)
 
     #Belief for probability parent, avatar 2
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob2_posterior_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face2_posterior_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face2_posterior_mean_$(participant_string).csv"), trajectories_df)
 
     #Prediction error for probability parent for avatar 2
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob2_value_prediction_error, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face2_value_prediction_error.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face2_value_prediction_error_$(participant_string).csv"), trajectories_df)
 
     #Belief for probability parent, avatar 3
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob3_posterior_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face3_posterior_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face3_posterior_mean_$(participant_string).csv"), trajectories_df)
 
     #Prediction error for probability parent for avatar 3
     trajectories_df = summarize(get_state_trajectories!(am_model, :xprob3_value_prediction_error, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_face3_value_prediction_error.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_face3_value_prediction_error_$(participant_string).csv"), trajectories_df)
 
     #Belief mean for overall volatility
     trajectories_df = summarize(get_state_trajectories!(am_model, :xvol_posterior_mean, ), median)
-    CSV.write(joinpath(csvs_savepath,"$(participant_string)_states_vol_posterior_mean.csv"), trajectories_df)
+    CSV.write(joinpath(csvs_savepath,"states_vol_posterior_mean_$(participant_string).csv"), trajectories_df)
 
     ### SAVE RESULTS ###
     plt = plot(participant_chains)
